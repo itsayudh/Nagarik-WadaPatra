@@ -1,0 +1,8 @@
+torch
+numpy
+sentencepiece
+fastapi
+uvicorn
+rank_bm25
+scikit-learn
+PyPDF2

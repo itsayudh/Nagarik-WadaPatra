@@ -1,0 +1,861 @@
+import json
+import os
+
+def format_qa_pairs(output_file):
+    """
+    Formats a list of question-answer pairs into a .jsonl file.
+
+    Args:
+        output_file (str): The path to the output .jsonl file.
+    """
+    # Create your list of Q&A pairs here.
+    # Add at least 600 pairs, with >40% in Nepali.
+    qa_data = [
+        {
+            "instruction": "जन्म दर्ता गर्न कति शुल्क लाग्छ?",
+            "answer": "३५ दिन भित्र शुल्क नलाग्ने, सो समय पछि ५० रु."
+        },
+        {
+            "instruction": "What is the fee for a birth registration?",
+            "answer": "No fee within 35 days, after that time the fee is 50 rupees."
+        },
+        {
+            "instruction": "नागरिकता बनाउँदा थप जानकारी कहाँबाट लिन सकिन्छ?",
+            "answer": "स्थानीय तह वा प्रहरी सर्जमिन लगायत बुझ्न सकिनेछ ।"
+        },
+        {
+            "instruction": "Where can I get additional information when creating a citizenship certificate?",
+            "answer": "Additional information can be obtained from local levels or police investigation, etc."
+        },
+        {
+            "instruction": "- How can I apply for a citizenship certificate in Nepal?",
+            "answer": "To apply for a citizenship certificate in Nepal, you need to visit your local ward office with the required documents such as birth certificate, parents' citizenship certificates, and proof of residence."
+        },
+        {
+            "instruction": "What documents are needed to register a birth in Nepal",
+            "answer": "You’ll need the hospital birth certificate, parents’ citizenship copies, and a recommendation from the local ward office."
+        },{
+            "instruction": "Where can I get a recommendation letter for government services",
+            "answer": "Recommendation letters are issued by the ward office based on your residence and purpose of request."
+        },{
+            "instruction": "How do I register a marriage in Nepal",
+            "answer": "You must submit a marriage registration form at the ward office along with citizenship copies and photos of both individuals."
+        },{
+            "instruction": "What is the process for obtaining a senior citizen identity card",
+            "answer": "Eligible individuals aged 60 and above can apply at the ward office with their citizenship and passport-sized photos."
+        },{
+            "instruction": "Can I update my address in the voter registration system",
+            "answer": "es, you can request an address update at the Election Commission office or through your local ward office."
+        },{
+            "instruction": "How do I get a disability identity card in Nepal",
+            "answer": "You need a medical certificate, citizenship copy, and a recommendation from the ward office to apply at the District Administration Office."
+        },{
+            "instruction": "What services does the ward office provide",
+            "answer": "he ward office offers birth, death, and marriage registration, recommendation letters, identity cards, and local dispute resolution."
+        },{
+            "instruction": "Is there a fee for registering a death in Nepal",
+            "answer": "No, death registration is free of charge, but you must submit the hospital death certificate and citizenship copy."
+        },{
+            "instruction": " नागरिकता प्रमाणपत्र लिन के कागजात चाहिन्छ",
+            "answer": "जन्म प्रमाणपत्र, बाबुआमाको नागरिकता, र वडा कार्यालयको सिफारिस पत्र आवश्यक हुन्छ"
+        },{
+            "instruction": "विवाह दर्ता कहाँ गरिन्छ",
+            "answer": "विवाह दर्ता वडा कार्यालयमा गरिन्छ। दुवै व्यक्तिको नागरिकता र फोटो आवश्यक हुन्छ"
+        },{
+            "instruction": "अपांगता परिचयपत्र कसरी प्राप्त गर्ने",
+            "answer": " चिकित्सकको प्रमाणपत्र, नागरिकता, र वडा कार्यालयको सिफारिस लिएर जिल्ला प्रशासन कार्यालयमा आवेदन दिनुपर्छ"
+        },{
+            "instruction": "जन्म दर्ता गर्न के प्रक्रिया हुन्छ",
+            "answer": "अस्पतालको जन्म प्रमाणपत्र, बाबुआमाको नागरिकता, र वडा कार्यालयको सिफारिस लिएर आवेदन दिनुपर्छ"
+        },{
+            "instruction": "सिफारिस पत्र कसरी प्राप्त गर्ने",
+            "answer": "आफ्नो स्थायी ठेगाना अनुसार वडा कार्यालयमा निवेदन दिएर सिफारिस पत्र लिन सकिन्छ"
+        },{
+            "instruction": "वृद्ध नागरिक परिचयपत्र कहाबाट पाइन्छ",
+            "answer": "६० वर्षभन्दा माथिका व्यक्तिले वडा कार्यालयमा नागरिकता र फोटो लिएर आवेदन दिन सक्छन्"
+        },
+        {
+            "instruction": "How can I apply for a Nepali citizenship certificate?",
+            "answer": "You can apply through your local District Administration Office by submitting required documents such as birth certificate, parent's citizenship, and recommendation letter."
+        },
+        {
+            "instruction": "What services are provided by the Department of Transport Management?",
+            "answer": "They offer vehicle registration, driving license issuance and renewal, and route permit services."
+        },
+        {
+            "instruction": "Where can I get a passport in Nepal?",
+            "answer": "Passports are issued by the Department of Passports, and applications can be submitted at district-level collection centers."
+        },
+        {
+            "instruction": "What health services are available from the government?",
+            "answer": "Government health services include immunization, maternal care, emergency treatment, and subsidized hospital services."
+        },
+        {
+            "instruction": "How does the government support agriculture?",
+            "answer": "It provides subsidies on seeds and fertilizers, irrigation support, crop insurance, and training for farmers."
+        },
+        {
+            "instruction": "What is the process for land registration?",
+            "answer": "Land registration is handled by the Land Revenue Office, which manages ownership transfer, mapping, and verification."
+        },
+        {
+            "instruction": "Can I register a company online in Nepal?",
+            "answer": "Yes, the Office of Company Registrar provides an online portal for company registration, name approval, and document submission."
+        },
+        {
+            "instruction": "What services are offered by the Department of Education?",
+            "answer": "They manage school registration, teacher licensing, curriculum development, and scholarship distribution."
+        },
+        {
+            "instruction": "How do I get a birth certificate in Nepal?",
+            "answer": "You can obtain a birth certificate from your local ward office by submitting proof of birth and parental identification."
+        },
+        {
+            "instruction": "नागरिकता प्रमाणपत्र हराएमा के गर्ने?",
+            "answer": "नजिकको जिल्ला प्रशासन कार्यालयमा निवेदन दिई हराएको प्रमाणपत्रको प्रतिलिपि लिन सकिन्छ।"
+        },
+        {
+            "instruction": "सवारी चालक अनुमतिपत्र नवीकरण कसरी गर्ने?",
+            "answer": "यातायात व्यवस्था विभागमा आवेदन दिई आवश्यक कागजातसहित नवीकरण प्रक्रिया पूरा गर्न सकिन्छ।"
+        },
+        {
+            "instruction": "स्वास्थ्य बीमा कार्यक्रम के हो?",
+            "answer": "सरकारले सञ्चालन गरेको स्वास्थ्य बीमा कार्यक्रमले अस्पताल खर्चमा सहयोग पुर्‍याउँछ।"
+        },
+        {
+            "instruction": "कृषि अनुदान कसरी प्राप्त गर्ने?",
+            "answer": "स्थानीय कृषि कार्यालयमा निवेदन दिई अनुदानको लागि दर्ता गर्न सकिन्छ।"
+        },
+        {
+            "instruction": "जन्म प्रमाणपत्र लिन के कागजात चाहिन्छ?",
+            "answer": "जन्म प्रमाणपत्रको लागि जन्मको प्रमाण, बाबुआमाको नागरिकता र सिफारिस पत्र आवश्यक हुन्छ।"
+        },
+        {
+            "instruction": "भूमि स्वामित्व प्रमाणपत्र कहाँबाट पाइन्छ?",
+            "answer": "भूमि राजस्व कार्यालयबाट स्वामित्व प्रमाणपत्र लिन सकिन्छ।"
+        },
+        {
+            "instruction": "What services does the Department of Civil Registration offer?",
+            "answer": "It provides birth, death, marriage, and migration registration services through local ward offices."
+        },
+        {
+            "instruction": "How can I renew my passport in Nepal?",
+            "answer": "You can renew your passport by submitting an application at the Department of Passports or designated collection centers with your old passport and required documents."
+        },
+        {
+            "instruction": "What is the role of the Department of Immigration?",
+            "answer": "It handles visa issuance, foreigner registration, and immigration control at borders and airports."
+        },
+        {
+            "instruction": "How does the government support small businesses?",
+            "answer": "Support includes low-interest loans, business registration assistance, training programs, and tax incentives."
+        },
+        {
+            "instruction": "What services are available for disaster relief?",
+            "answer": "The government provides emergency shelter, food distribution, medical aid, and rehabilitation support through local authorities and the Ministry of Home Affairs."
+        },
+        {
+            "instruction": "How can I register a birth online in Nepal?",
+            "answer": "Some municipalities offer online birth registration through their official portals, requiring scanned documents and digital verification."
+        },
+        {
+            "instruction": "What is the process for voter registration?",
+            "answer": "You must visit the Election Commission office with citizenship documents and biometric data to register as a voter."
+        },
+        {
+            "instruction": "What services does the Department of Labor provide?",
+            "answer": "It offers labor permits, foreign employment registration, workplace safety guidelines, and dispute resolution."
+        },
+        {
+            "instruction": "How can I access government scholarships?",
+            "answer": "Scholarships are available through the Ministry of Education for students based on merit, need, or specific categories like marginalized groups."
+        },
+        {
+            "instruction": "राहदानी हराएमा के गर्ने?",
+            "answer": "नजिकको राहदानी सङ्कलन केन्द्रमा निवेदन दिई हराएको प्रमाणसहित नयाँ राहदानीको लागि आवेदन दिन सकिन्छ।"
+        },
+        {
+            "instruction": "मतदाता नामावलीमा नाम थप्न के प्रक्रिया छ?",
+            "answer": "नजिकको निर्वाचन कार्यालयमा नागरिकता प्रमाणपत्रसहित गई बायोमेट्रिक विवरण दिएर नाम दर्ता गर्न सकिन्छ।"
+        },
+        {
+            "instruction": "सरकारी विद्यालयमा भर्ना कसरी गरिन्छ?",
+            "answer": "स्थानीय विद्यालयमा गई आवश्यक कागजातसहित भर्ना फारम बुझाउनुपर्छ।"
+        },
+        {
+            "instruction": "विवाह दर्ता कहाँ गर्ने?",
+            "answer": "स्थानीय वडा कार्यालयमा विवाह प्रमाणपत्र र साक्षीको विवरणसहित विवाह दर्ता गर्न सकिन्छ।"
+        },
+        {
+            "instruction": "आप्रवासी श्रमिकको लागि सरकारको सेवा के छ?",
+            "answer": "सरकारले वैदेशिक रोजगार अनुमति, बीमा योजना, र पुनःस्थापन सहायता प्रदान गर्छ।"
+        },
+        {
+            "instruction": "सरकारी आपतकालीन सहायता कसरी प्राप्त गर्ने?",
+            "answer": "स्थानीय प्रशासन कार्यालयमा सम्पर्क गरी राहत सामग्री वा आश्रयको लागि निवेदन दिन सकिन्छ।"
+        },
+        {
+        "instruction": "What services are provided by the Department of Urban Development?",
+        "answer": "It oversees urban planning, infrastructure development, housing policies, and sanitation programs in municipalities."
+        },
+        {
+            "instruction": "How can I apply for a marriage certificate in Nepal?",
+            "answer": "You can apply at your local ward office by submitting identification documents, marriage details, and witness information."
+        },
+        {
+            "instruction": "What is the role of the Ministry of Women, Children and Senior Citizens?",
+            "answer": "It provides welfare programs, legal protection, rehabilitation services, and awareness campaigns for vulnerable groups."
+        },
+        {
+            "instruction": "How does the government promote tourism?",
+            "answer": "Through visa facilitation, infrastructure development, cultural preservation, and international marketing campaigns."
+        },
+        {
+            "instruction": "What services are available for forest conservation?",
+            "answer": "The government offers community forest programs, biodiversity protection, reforestation initiatives, and wildlife monitoring."
+        },
+        {
+            "instruction": "How can I register a cooperative in Nepal?",
+            "answer": "You must apply through the Division Cooperative Office with bylaws, member details, and financial plans."
+        },
+        {
+            "instruction": "What is the process for pension distribution?",
+            "answer": "Eligible citizens receive pensions through local government offices after verification of age and service history."
+        },
+        {
+            "instruction": "What services does the Department of Water Supply and Sewerage provide?",
+            "answer": "It manages drinking water projects, sanitation systems, and maintenance of urban water pipelines."
+        },
+        {
+            "instruction": "How does the government support digital services?",
+            "answer": "It promotes e-governance, online portals for public services, digital literacy programs, and cybersecurity policies."
+        },
+        {
+            "instruction": "शैक्षिक प्रमाणपत्रको प्रमाणिकरण कहाँ गर्ने?",
+            "answer": "शिक्षा मन्त्रालय अन्तर्गतको सम्बन्धित विभागमा गई प्रमाणपत्र प्रमाणिकरण गर्न सकिन्छ।"
+        },
+        {
+            "instruction": "घर निर्माण अनुमति कसरी लिने?",
+            "answer": "स्थानीय नगरपालिकामा नक्सा स्वीकृति र आवश्यक कागजातसहित आवेदन दिनुपर्छ।"
+        },
+        {
+            "instruction": "ज्येष्ठ नागरिकलाई के सेवा उपलब्ध छ?",
+            "answer": "सरकारले ज्येष्ठ नागरिकलाई भत्ता, स्वास्थ्य सेवा, र सामाजिक सुरक्षा योजना प्रदान गर्छ।"
+        },
+        {
+            "instruction": "पर्यटन प्रवर्द्धनका लागि सरकार के गर्छ?",
+            "answer": "सरकारले सांस्कृतिक कार्यक्रम, पूर्वाधार विकास, र अन्तर्राष्ट्रिय प्रचारमार्फत पर्यटन प्रवर्द्धन गर्छ।"
+        },
+        {
+            "instruction": "वन संरक्षणमा सरकारको भूमिका के हो?",
+            "answer": "सरकारले सामुदायिक वन, पुनःवनरोपण, जैविक विविधता संरक्षण, र वन्यजन्तु निगरानी कार्यक्रम सञ्चालन गर्छ।"
+        },
+        {
+            "instruction": "सहकारी संस्था दर्ता गर्न के प्रक्रिया छ?",
+            "answer": "सहकारी कार्यालयमा विधान, सदस्य विवरण, र वित्तीय योजना सहित आवेदन दिनुपर्छ।"
+        },
+        
+        {
+            "instruction": "How can I register a birth if I was born abroad?",
+            "answer": "You can register your birth at the Nepali embassy or consulate in the country of birth, then transfer the record to your local ward office in Nepal."
+        },
+        {
+            "instruction": "What is the role of the Ministry of Finance?",
+            "answer": "It manages national budgeting, taxation policies, public expenditure, and financial regulations."
+        },
+        {
+            "instruction": "How does the government support education for marginalized communities?",
+            "answer": "It provides targeted scholarships, free textbooks, midday meal programs, and inclusive curriculum development."
+        },
+        {
+            "instruction": "What services are available for environmental protection?",
+            "answer": "Services include pollution control, conservation programs, environmental impact assessments, and eco-tourism promotion."
+        },
+        {
+            "instruction": "How can I get a national ID card in Nepal?",
+            "answer": "You must register your biometric details at designated enrollment centers managed by the National ID and Civil Registration Department."
+        },
+        {
+            "instruction": "What is the process for registering a death in Nepal?",
+            "answer": "You need to submit a death certificate and identification documents to your local ward office for official registration."
+        },
+        {
+            "instruction": "How does the government promote renewable energy?",
+            "answer": "It supports solar, micro-hydro, and biogas projects through subsidies, technical training, and rural electrification programs."
+        },
+        {
+            "instruction": "What services are provided by the Ministry of Culture, Tourism and Civil Aviation?",
+            "answer": "It oversees cultural preservation, tourism development, aviation regulation, and international travel coordination."
+        },
+        {
+            "instruction": "How can I file a complaint against a government office?",
+            "answer": "You can submit a complaint through the Commission for the Investigation of Abuse of Authority (CIAA) or use online grievance portals."
+        },
+        {
+            "instruction": "What is the role of the Election Commission of Nepal?",
+            "answer": "It conducts elections, manages voter registration, monitors campaign financing, and ensures electoral integrity."
+        },
+        {
+            "instruction": "How does the government support public transportation?",
+            "answer": "It regulates bus routes, provides subsidies for electric vehicles, and develops infrastructure like terminals and smart ticketing systems."
+        },
+        {
+            "instruction": "What services are available for mental health?",
+            "answer": "Government hospitals offer counseling, psychiatric treatment, awareness programs, and community-based mental health services."
+        },
+        {
+            "instruction": "How can I access legal aid in Nepal?",
+            "answer": "You can apply through the Nepal Bar Association or District Legal Aid Committees for free or subsidized legal services."
+        },
+        {
+            "instruction": "What is the process for registering a non-profit organization?",
+            "answer": "You must submit bylaws, member details, and objectives to the District Administration Office for approval."
+        },
+        {
+            "instruction": "How does the government support disaster preparedness?",
+            "answer": "It conducts training, builds emergency shelters, installs early warning systems, and coordinates with local disaster management committees."
+        },
+        {
+            "instruction": "What services are available for youth development?",
+            "answer": "Programs include skill development training, entrepreneurship support, sports promotion, and youth exchange initiatives."
+        },
+        {
+            "instruction": "How can I verify my land ownership online?",
+            "answer": "Some municipalities offer online land record systems where you can search by plot number or owner name."
+        },
+        {
+            "instruction": "राष्ट्रिय परिचयपत्र लिन के प्रक्रिया छ?",
+            "answer": "नाम दर्ता केन्द्रमा गई बायोमेट्रिक विवरण दिई आवेदन दिनुपर्छ।"
+        },
+        {
+            "instruction": "मृत्यु दर्ता कहाँ गर्ने?",
+            "answer": "स्थानीय वडा कार्यालयमा मृत्यु प्रमाणपत्र र नागरिकता विवरणसहित दर्ता गर्न सकिन्छ।"
+        },
+        {
+            "instruction": "नवीकरणको लागि सवारी साधनको कागजात के चाहिन्छ?",
+            "answer": "सवारीको पुरानो कागजात, बीमा प्रमाणपत्र, र कर तिरेको रसिद आवश्यक हुन्छ।"
+        },
+        {
+            "instruction": "सरकारी कानुनी सहायता कसरी प्राप्त गर्ने?",
+            "answer": "जिल्ला कानुनी सहायता समिति वा नेपाल बार एसोसिएसनमा सम्पर्क गर्न सकिन्छ।"
+        },
+        {
+            "instruction": "पर्यावरण संरक्षणका लागि सरकार के गर्छ?",
+            "answer": "सरकारले प्रदूषण नियन्त्रण, जैविक विविधता संरक्षण, र वातावरणीय मूल्यांकन कार्यक्रम सञ्चालन गर्छ।"
+        },
+        {
+            "instruction": "शिक्षा मन्त्रालयले के सेवा दिन्छ?",
+            "answer": "विद्यालय दर्ता, पाठ्यक्रम विकास, शिक्षक तालिम, र छात्रवृत्ति वितरण सेवा दिन्छ।"
+        },
+        {
+            "instruction": "सहकारी संस्था नवीकरण कसरी गर्ने?",
+            "answer": "सहकारी कार्यालयमा पुराना कागजात र वित्तीय विवरणसहित आवेदन दिनुपर्छ।"
+        },
+        {
+            "instruction": "युवाहरूको लागि सरकारको कार्यक्रम के छन्?",
+            "answer": "सीप विकास तालिम, उद्यमशीलता सहयोग, खेलकुद प्रवर्द्धन, र युवा आदानप्रदान कार्यक्रम छन्।"
+        },
+        {
+            "instruction": "मतदाता परिचयपत्र कहाँबाट पाइन्छ?",
+            "answer": "निर्वाचन आयोगको कार्यालयमा गई बायोमेट्रिक विवरण दिएर मतदाता परिचयपत्र लिन सकिन्छ।"
+        },
+        {
+            "instruction": "सार्वजनिक यातायातमा सरकारको भूमिका के हो?",
+            "answer": "बस रुट व्यवस्थापन, विद्युतीय सवारीमा अनुदान, र पूर्वाधार विकासमा सरकारको भूमिका हुन्छ।"
+        },
+        {
+            "instruction": "मानसिक स्वास्थ्य सेवामा सरकार के गर्छ?",
+            "answer": "सरकारी अस्पतालमा परामर्श, उपचार, जनचेतना कार्यक्रम, र सामुदायिक सेवा उपलब्ध छन्।"
+        },
+        {
+            "instruction": "What services does the Ministry of Agriculture and Livestock Development offer?",
+            "answer": "It provides agricultural subsidies, livestock vaccination programs, farmer training, and research on crop improvement."
+        },
+        {
+            "instruction": "How can I register a vehicle in Nepal?",
+            "answer": "You must apply at the Transport Management Office with ownership documents, tax receipts, and vehicle inspection clearance."
+        },
+        {
+            "instruction": "What is the role of the Ministry of Communications and Information Technology?",
+            "answer": "It regulates telecommunications, promotes digital infrastructure, manages postal services, and oversees cybersecurity policies."
+        },
+        {
+            "instruction": "How does the government support women entrepreneurs?",
+            "answer": "Support includes access to microfinance, business training, market linkage programs, and legal assistance."
+        },
+        {
+            "instruction": "What services are available for senior citizens?",
+            "answer": "The government offers monthly allowances, free health checkups, priority services at public offices, and social protection schemes."
+        },
+        {
+            "instruction": "How can I apply for a driving license in Nepal?",
+            "answer": "You need to pass a written and practical test at the Transport Management Office and submit identity documents and medical clearance."
+        },
+        {
+            "instruction": "What is the process for registering a marriage abroad?",
+            "answer": "Nepali citizens can register their marriage at the nearest embassy or consulate, then transfer the record to their local ward office."
+        },
+        {
+            "instruction": "How does the government promote digital literacy?",
+            "answer": "It runs training programs, school curriculum integration, community outreach, and partnerships with tech organizations."
+        },
+        {
+            "instruction": "What services are provided by the Ministry of Forests and Environment?",
+            "answer": "It manages forest conservation, climate change adaptation, wildlife protection, and environmental education."
+        },
+        {
+            "instruction": "How can I apply for social security benefits?",
+            "answer": "You must register with the Social Security Fund and submit documents verifying employment, age, or disability status."
+        },
+        {
+            "instruction": "What is the role of the National Planning Commission?",
+            "answer": "It formulates development policies, monitors national projects, and coordinates with ministries for strategic planning."
+        },
+        {
+            "instruction": "How does the government support remote education?",
+            "answer": "It provides radio and TV-based lessons, online platforms, teacher training, and distribution of digital devices."
+        },
+        {
+            "instruction": "What services are available for disaster victims?",
+            "answer": "Emergency shelter, food aid, medical support, and rehabilitation grants are provided through local and national agencies."
+        },
+        {
+            "instruction": "How can I get a business PAN number in Nepal?",
+            "answer": "You must apply through the Inland Revenue Department with business registration documents and owner identification."
+        },
+        {
+            "instruction": "What is the process for changing address on citizenship certificate?",
+            "answer": "You need to submit an application to the District Administration Office with proof of new residence and original certificate."
+        },
+        {
+            "instruction": "How does the government support cultural heritage preservation?",
+            "answer": "It funds restoration projects, enforces conservation laws, and promotes traditional arts and festivals."
+        },
+        {
+            "instruction": "What services are available for people with disabilities?",
+            "answer": "Services include disability ID cards, rehabilitation centers, assistive devices, and inclusive education programs."
+        },
+        {
+            "instruction": "How can I register a trademark in Nepal?",
+            "answer": "You must apply to the Department of Industry with product details, logo, and ownership documents."
+        },
+        {
+            "instruction": "महिला उद्यमीलाई सरकारले के सहयोग गर्छ?",
+            "answer": "सरकारले साना ऋण, व्यवसाय तालिम, बजार पहुँच, र कानुनी सहायता प्रदान गर्छ।"
+        },
+        {
+            "instruction": "सवारी चालक अनुमतिपत्रको लागि के प्रक्रिया छ?",
+            "answer": "लेखन र प्रयोगात्मक परीक्षा पास गरी यातायात कार्यालयमा आवेदन दिनुपर्छ।"
+        },
+        {
+            "instruction": "दुर्गम क्षेत्रमा शिक्षा कसरी प्रवर्द्धन गरिन्छ?",
+            "answer": "रेडियो/टीभी कक्षा, अनलाइन प्लेटफर्म, शिक्षक तालिम, र डिजिटल उपकरण वितरण गरिन्छ।"
+        },
+        {
+            "instruction": "ज्येष्ठ नागरिकलाई के सेवा उपलब्ध छ?",
+            "answer": "मासिक भत्ता, निःशुल्क स्वास्थ्य परीक्षण, प्राथमिकता सेवा, र सामाजिक सुरक्षा योजना उपलब्ध छन्।"
+        },
+        {
+            "instruction": "दुर्घटनापछि राहत कसरी प्राप्त गर्ने?",
+            "answer": "स्थानीय प्रशासनमार्फत आश्रय, खाद्य सहायता, उपचार, र पुनःस्थापन अनुदान प्राप्त गर्न सकिन्छ।"
+        },
+        {
+            "instruction": "सामाजिक सुरक्षा लाभ लिन के गर्नुपर्छ?",
+            "answer": "सामाजिक सुरक्षा कोषमा दर्ता गरी रोजगार, उमेर वा अपांगताको प्रमाण पेश गर्नुपर्छ।"
+        },
+        {
+            "instruction": "दुर्गम शिक्षा प्रवर्द्धनमा सरकारको भूमिका के हो?",
+            "answer": "सरकारले रेडियो/टीभी कक्षा, अनलाइन शिक्षण, शिक्षक तालिम, र डिजिटल उपकरण वितरण गर्छ।"
+        },
+        {
+            "instruction": "अपांगता भएका व्यक्तिको लागि के सेवा छन्?",
+            "answer": "अपांगता परिचयपत्र, पुनःस्थापन केन्द्र, सहायक उपकरण, र समावेशी शिक्षा कार्यक्रम छन्।"
+        },
+        {
+            "instruction": "संस्कृति संरक्षणमा सरकार के गर्छ?",
+            "answer": "सरकारले पुनःनिर्माण परियोजना, संरक्षण कानून, र परम्परागत कला तथा पर्व प्रवर्द्धन गर्छ।"
+        },
+        {
+            "instruction": "व्यापारको लागि PAN नम्बर कसरी लिने?",
+            "answer": "आन्तरिक राजस्व विभागमा व्यवसाय दर्ता कागजात र परिचयपत्रसहित आवेदन दिनुपर्छ।"
+        },
+        {
+            "instruction": "विपद् पीडितको लागि सरकारको सेवा के छन्?",
+            "answer": "आपतकालीन आश्रय, खाद्य सहायता, उपचार, र पुनःस्थापन अनुदान प्रदान गरिन्छ।"
+        },
+        {
+        "instruction": "What services does the Ministry of Energy, Water Resources and Irrigation provide?",
+        "answer": "It manages hydropower development, irrigation projects, water resource conservation, and energy policy implementation."
+        },
+        {
+            "instruction": "How can I apply for electricity connection in Nepal?",
+            "answer": "You must submit an application to the Nepal Electricity Authority with property documents and identification."
+        },
+        {
+            "instruction": "What is the role of the Department of Roads?",
+            "answer": "It oversees road construction, maintenance, and expansion of national highways and rural road networks."
+        },
+        {
+            "instruction": "How does the government support rural development?",
+            "answer": "Through infrastructure projects, agricultural support, local governance strengthening, and community-based programs."
+        },
+        {
+            "instruction": "What services are available for water supply in urban areas?",
+            "answer": "Municipalities and the Department of Water Supply provide piped water access, maintenance, and sanitation services."
+        },
+        {
+            "instruction": "How can I register a mobile SIM card in Nepal?",
+            "answer": "You need to visit a telecom provider with your citizenship certificate and a passport-sized photo."
+        },
+        {
+            "instruction": "What is the process for applying for a government job?",
+            "answer": "You must apply through the Public Service Commission portal and pass written, interview, and skill tests."
+        },
+        {
+            "instruction": "How does the government support climate resilience?",
+            "answer": "It funds adaptation projects, promotes green technologies, and integrates climate risk into development planning."
+        },
+        {
+            "instruction": "What services are provided by the Ministry of Law, Justice and Parliamentary Affairs?",
+            "answer": "It drafts legislation, manages legal reform, supports judicial coordination, and oversees parliamentary procedures."
+        },
+        {
+            "instruction": "How can I register a complaint about telecom services?",
+            "answer": "You can file a complaint with the Nepal Telecommunications Authority or use their online grievance portal."
+        },
+        {
+            "instruction": "What is the role of the Department of Archaeology?",
+            "answer": "It preserves historical monuments, conducts excavations, and promotes cultural heritage tourism."
+        },
+        {
+            "instruction": "How does the government support food security?",
+            "answer": "Through seed banks, buffer stock programs, agricultural extension services, and nutrition awareness campaigns."
+        },
+        {
+            "instruction": "What services are available for flood victims?",
+            "answer": "Emergency shelter, food, medical aid, and rehabilitation grants are provided by local and national agencies."
+        },
+        {
+            "instruction": "How can I apply for a trade license?",
+            "answer": "You must submit an application to your local municipality with business details and ownership documents."
+        },
+        {
+            "instruction": "What is the process for updating voter details?",
+            "answer": "You can update your voter information at the Election Commission office with supporting documents."
+        },
+        {
+            "instruction": "How does the government promote gender equality?",
+            "answer": "It enforces anti-discrimination laws, funds women’s empowerment programs, and supports inclusive policy-making."
+        },
+        {
+            "instruction": "What services are available for earthquake preparedness?",
+            "answer": "Training, retrofitting guidelines, emergency drills, and public awareness campaigns are provided by disaster agencies."
+        },
+        {
+            "instruction": "How can I apply for a government scholarship?",
+            "answer": "You must apply through the Ministry of Education or your school, based on merit or need-based criteria."
+        },
+        {
+            "instruction": "What is the role of the Department of Cooperatives?",
+            "answer": "It regulates cooperative registration, audits, training, and promotes community-based financial inclusion."
+        },
+        {
+            "instruction": "How does the government support digital startups?",
+            "answer": "Through incubation centers, seed funding, mentorship programs, and policy incentives for innovation."
+        },
+        {
+            "instruction": "How can I register a birth at a hospital?",
+            "answer": "Hospitals issue a birth notification slip, which must be submitted to the ward office for official registration."
+        },
+        {
+            "instruction": "What services are available for migrant workers?",
+            "answer": "The government offers labor permits, insurance schemes, legal aid, and reintegration support."
+        },
+        {
+            "instruction": "How does the government promote public health?",
+            "answer": "It runs vaccination drives, sanitation campaigns, health education, and disease surveillance programs."
+        },
+        {
+            "instruction": "What is the process for applying for a national identity card?",
+            "answer": "You must register biometric data at designated enrollment centers and submit citizenship documents."
+        },
+        {
+            "instruction": "How can I verify land ownership in Nepal?",
+            "answer": "You can check records at the Land Revenue Office or use online land information systems where available."
+        },
+        {
+            "instruction": "What services are provided by the Ministry of Home Affairs?",
+            "answer": "It manages internal security, disaster response, citizenship services, and coordination with local governments."
+        },
+        {
+            "instruction": "How does the government support school infrastructure?",
+            "answer": "It funds classroom construction, sanitation facilities, furniture supply, and digital learning tools."
+        },
+        {
+            "instruction": "What is the role of the Department of Industry?",
+            "answer": "It facilitates industrial registration, promotes investment, and supports small and medium enterprises."
+        },
+        {
+            "instruction": "How can I apply for a visa extension in Nepal?",
+            "answer": "You must visit the Department of Immigration with your passport and visa documents before expiry."
+        },
+        {
+            "instruction": "What services are available for fire safety?",
+            "answer": "Municipalities provide fire brigade services, safety inspections, and public awareness programs."
+        },
+        {
+            "instruction": "सडक विभागले के सेवा दिन्छ?",
+            "answer": "सडक निर्माण, मर्मत, र राष्ट्रिय राजमार्ग तथा ग्रामीण सडकको विस्तार गर्छ।"
+        },
+        {
+            "instruction": "कृषि मन्त्रालयले के सहयोग गर्छ?",
+            "answer": "बिउ अनुदान, पशु खोप, किसान तालिम, र बाली सुधार अनुसन्धान प्रदान गर्छ।"
+        },
+        {
+            "instruction": "सामुदायिक वन कसरी दर्ता गर्ने?",
+            "answer": "वन कार्यालयमा आवेदन दिई स्थानीय उपभोक्ता समूहको विवरण पेश गर्नुपर्छ।"
+        },
+        {
+            "instruction": "सार्वजनिक सेवा आयोगमा जागिरको लागि आवेदन कसरी दिने?",
+            "answer": "आयोगको पोर्टलमा दर्ता गरी लिखित, अन्तर्वार्ता, र सीप परीक्षण पास गर्नुपर्छ।"
+        },
+        {
+            "instruction": "दुर्घटना पीडितलाई के सेवा उपलब्ध छ?",
+            "answer": "आपतकालीन आश्रय, खाद्य सहायता, उपचार, र पुनःस्थापन अनुदान प्रदान गरिन्छ।"
+        },
+        {
+            "instruction": "सामाजिक सुरक्षा कोषमा दर्ता कसरी गर्ने?",
+            "answer": "कोषको कार्यालयमा गई रोजगार विवरण र नागरिकता प्रमाणपत्र पेश गर्नुपर्छ।"
+        },
+        {
+            "instruction": "सहकारी संस्था दर्ता गर्न के प्रक्रिया छ?",
+            "answer": "सहकारी कार्यालयमा विधान, सदस्य विवरण, र वित्तीय योजना सहित आवेदन दिनुपर्छ।"
+        },
+        {
+            "instruction": "पर्यटन मन्त्रालयले के सेवा दिन्छ?",
+            "answer": "संस्कृति संरक्षण, पर्यटन प्रवर्द्धन, उड्डयन व्यवस्थापन, र अन्तर्राष्ट्रिय समन्वय गर्छ।"
+        },
+        {
+            "instruction": "नागरिकता प्रमाणपत्रमा ठेगाना परिवर्तन कसरी गर्ने?",
+            "answer": "जिल्ला प्रशासन कार्यालयमा नयाँ ठेगानाको प्रमाणसहित आवेदन दिनुपर्छ।"
+        },
+        {
+            "instruction": "राष्ट्रिय परिचयपत्रको लागि बायोमेट्रिक विवरण कहाँ दिने?",
+            "answer": "नाम दर्ता केन्द्रमा गई बायोमेट्रिक विवरण र नागरिकता प्रमाणपत्र पेश गर्नुपर्छ।"
+        },
+        {
+            "instruction": "जल तथा ढल व्यवस्थापन विभागले के सेवा दिन्छ?",
+            "answer": "पिउने पानी परियोजना, सरसफाइ प्रणाली, र पाइपलाइन मर्मत सेवा दिन्छ।"
+        },
+        {
+            "instruction": "सामुदायिक स्वास्थ्य सेवा के हो?",
+            "answer": "स्थानीय स्तरमा सञ्चालित स्वास्थ्य केन्द्रबाट परामर्श, उपचार, र जनचेतना कार्यक्रम प्रदान गरिन्छ।"
+        },
+        {
+            "instruction": "सार्वजनिक विद्यालयमा डिजिटल शिक्षा कसरी लागू गरिन्छ?",
+            "answer": "सरकारले कम्प्युटर, इन्टरनेट, र डिजिटल पाठ्यपुस्तक उपलब्ध गराउँछ।"
+        },
+        {
+            "instruction": "सडक सुरक्षा प्रवर्द्धनमा सरकार के गर्छ?",
+            "answer": "सडक संकेत, जनचेतना कार्यक्रम, र ट्राफिक नियम"
+        },
+         {
+            "instruction": "What services does the Ministry of Physical Infrastructure and Transport offer?",
+            "answer": "It manages road networks, bridges, public transport systems, and infrastructure planning."
+        },
+        {
+            "instruction": "How can I apply for a building permit in Nepal?",
+            "answer": "You must submit architectural plans and ownership documents to your local municipality for approval."
+        },
+        {
+            "instruction": "What is the role of the Department of Urban Development and Building Construction?",
+            "answer": "It oversees urban planning, housing projects, and construction standards enforcement."
+        },
+        {
+            "instruction": "How does the government support earthquake-resistant construction?",
+            "answer": "It provides technical guidelines, training programs, and subsidies for retrofitting vulnerable buildings."
+        },
+        {
+            "instruction": "What services are available for sanitation in rural areas?",
+            "answer": "Local governments offer toilet construction subsidies, hygiene education, and waste management support."
+        },
+        {
+            "instruction": "How can I register a public trust in Nepal?",
+            "answer": "You must apply at the District Administration Office with trust deed, objectives, and trustee details."
+        },
+        {
+            "instruction": "What is the process for obtaining a tax clearance certificate?",
+            "answer": "You must submit your tax returns and payment receipts to the Inland Revenue Office for verification."
+        },
+        {
+            "instruction": "How does the government support renewable energy in rural areas?",
+            "answer": "It promotes solar home systems, micro-hydro projects, and biogas plants through subsidies and training."
+        },
+        {
+            "instruction": "What services are provided by the Ministry of Federal Affairs and General Administration?",
+            "answer": "It coordinates local governance, civil service management, and administrative reforms."
+        },
+        {
+            "instruction": "How can I apply for a foreign employment permit?",
+            "answer": "You must register with the Department of Foreign Employment and submit required documents and training certificates."
+        },
+        {
+            "instruction": "What is the role of the Department of Environment?",
+            "answer": "It monitors pollution, enforces environmental regulations, and promotes sustainable development."
+        },
+        {
+            "instruction": "How does the government support disaster risk reduction?",
+            "answer": "It conducts hazard mapping, community training, early warning systems, and emergency response planning."
+        },
+        {
+            "instruction": "What services are available for street children?",
+            "answer": "Rehabilitation centers, education access, health care, and legal protection are provided by child welfare agencies."
+        },
+        {
+            "instruction": "How can I register a school in Nepal?",
+            "answer": "You must apply to the Education Development Directorate with infrastructure details, staff qualifications, and curriculum plans."
+        },
+        {
+            "instruction": "What is the process for applying for a business loan under government schemes?",
+            "answer": "You must submit a business proposal to participating banks or cooperatives under government-backed loan programs."
+        },
+        {
+            "instruction": "How does the government support cultural festivals?",
+            "answer": "It provides funding, logistical support, and promotional campaigns for traditional and regional festivals."
+        },
+        {
+            "instruction": "What services are available for wildlife conservation?",
+            "answer": "Protected area management, anti-poaching patrols, breeding programs, and community engagement are key services."
+        },
+        {
+            "instruction": "How can I apply for a land ownership transfer?",
+            "answer": "You must submit a sale deed, tax clearance, and identity documents to the Land Revenue Office."
+        },
+        {
+            "instruction": "What is the role of the Ministry of Health and Population?",
+            "answer": "It manages public health policy, hospital services, disease control programs, and health infrastructure."
+        },
+        {
+            "instruction": "How does the government support inclusive education?",
+            "answer": "It provides scholarships, teacher training, accessible materials, and curriculum adaptation for diverse learners."
+        },
+        {
+            "instruction": "What services are available for domestic violence victims?",
+            "answer": "Shelters, legal aid, counseling, and emergency support are provided through government and NGO coordination."
+        },
+        {
+            "instruction": "How can I register a birth after the legal deadline?",
+            "answer": "You must submit a late registration application with justification and supporting documents to the ward office."
+        },
+        {
+            "instruction": "What is the process for applying for a disability ID card?",
+            "answer": "You must undergo medical assessment and submit documents to the local social welfare office."
+        },
+        {
+            "instruction": "How does the government support youth employment?",
+            "answer": "It offers skill development programs, job fairs, entrepreneurship support, and internship opportunities."
+        },
+        {
+            "instruction": "What services are available for elderly care?",
+            "answer": "Senior citizen allowances, health checkups, day care centers, and priority services are provided."
+        },
+        {
+            "instruction": "How can I register a cooperative society?",
+            "answer": "You must submit bylaws, member details, and financial plans to the Division Cooperative Office."
+        },
+        {
+            "instruction": "What is the role of the Ministry of Education, Science and Technology?",
+            "answer": "It oversees school and university education, research funding, curriculum development, and teacher training."
+        },
+        {
+            "instruction": "How does the government promote clean cooking solutions?",
+            "answer": "It supports improved cookstove distribution, biogas adoption, and awareness campaigns on indoor air pollution."
+        },
+        {
+            "instruction": "What services are available for mental health support?",
+            "answer": "Government hospitals offer counseling, psychiatric treatment, helplines, and community outreach programs."
+        },
+        {
+            "instruction": "How can I apply for a trade fair participation subsidy?",
+            "answer": "You must apply through the Department of Industry with product details and business registration."
+        },
+        {
+            "instruction": "भवन निर्माण अनुमति लिन के प्रक्रिया छ?",
+            "answer": "स्थानीय नगरपालिकामा नक्सा र स्वामित्व कागजातसहित आवेदन दिनुपर्छ।"
+        },
+        {
+            "instruction": "सार्वजनिक ट्रस्ट दर्ता कसरी गर्ने?",
+            "answer": "जिल्ला प्रशासन कार्यालयमा ट्रस्टको उद्देश्य, ट्रस्टी विवरण, र ट्रस्ट डीड पेश गर्नुपर्छ।"
+        },
+        {
+            "instruction": "पुनःस्थापन अनुदान कसरी प्राप्त गर्ने?",
+            "answer": "स्थानीय प्रशासनमा निवेदन दिई पीडित प्रमाणसहित अनुदानको लागि आवेदन दिन सकिन्छ।"
+        },
+        {
+            "instruction": "सडक निर्माणमा सरकारको भूमिका के हो?",
+            "answer": "सरकारले सडक योजना, निर्माण, मर्मत, र विस्तारको जिम्मेवारी लिन्छ।"
+        },
+        {
+            "instruction": "सार्वजनिक शौचालय निर्माणमा सरकार के गर्छ?",
+            "answer": "सरकारले अनुदान, जनचेतना, र सरसफाइ प्रवर्द्धन कार्यक्रम सञ्चालन गर्छ।"
+        },
+        {
+            "instruction": "पर्यावरण विभागले के सेवा दिन्छ?",
+            "answer": "प्रदूषण निगरानी, नियम कार्यान्वयन, र दिगो विकास प्रवर्द्धन गर्छ।"
+        },
+        {
+            "instruction": "बालबालिकाको लागि पुनःस्थापन सेवा के छन्?",
+            "answer": "पुनःस्थापन केन्द्र, शिक्षा पहुँच, स्वास्थ्य सेवा, र कानुनी सुरक्षा उपलब्ध छन्।"
+        },
+        {
+            "instruction": "व्यवसाय दर्ता गर्न के कागजात चाहिन्छ?",
+            "answer": "स्थानीय कार्यालयमा व्यवसाय विवरण, स्वामित्व प्रमाण, र कर रसिद पेश गर्नुपर्छ।"
+        },
+        {
+            "instruction": "अपांगता परिचयपत्रको लागि के प्रक्रिया छ?",
+            "answer": "चिकित्सकीय मूल्यांकन गरी सामाजिक कल्याण कार्यालयमा आवेदन दिनुपर्छ।"
+        },
+        {
+            "instruction": "युवा रोजगारमा सरकार के सहयोग गर्छ?",
+            "answer": "सीप विकास, रोजगारी मेला, उद्यमशीलता सहयोग, र इन्टर्नशिप कार्यक्रम सञ्चालन गर्छ।"
+        },
+        {
+            "instruction": "ज्येष्ठ नागरिकको हेरचाहमा सरकार के गर्छ?",
+            "answer": "भत्ता, स्वास्थ्य परीक्षण, डे केयर केन्द्र, र प्राथमिकता सेवा प्रदान गर्छ।"
+        },
+        {
+            "instruction": "सहकारी संस्था दर्ता गर्न के कागजात चाहिन्छ?",
+            "answer": "विधान, सदस्य विवरण, र वित्तीय योजना सहकारी कार्यालयमा पेश गर्नुपर्छ।"
+        },
+        {
+            "instruction": "शिक्षा मन्त्रालयको भूमिका के हो?",
+            "answer": "विद्यालय र विश्वविद्यालय शिक्षा, पाठ्यक्रम विकास, अनुसन्धान, र शिक्षक तालिम व्यवस्थापन गर्छ।"
+        },
+        {
+            "instruction": "स्वच्छ खाना पकाउने समाधानमा सरकार के गर्छ?",
+            "answer": "सुधारिएको चुलो वितरण, बायोग्यास प्रवर्द्धन, र जनचेतना कार्यक्रम सञ्चालन गर्छ।"
+        }   
+    ]
+
+    # Create the output directory if it doesn't exist
+    os.makedirs(os.path.dirname(output_file), exist_ok=True)
+
+    print(f"Writing {len(qa_data)} Q&A pairs to {output_file}...")
+    try:
+        with open(output_file, 'w', encoding='utf-8') as outfile:
+            for entry in qa_data:
+                # The 'ensure_ascii=False' flag is important to correctly
+                # save the Nepali (Devanagari) characters.
+                json.dump(entry, outfile, ensure_ascii=False)
+                outfile.write('\n')
+        print("Q&A pair formatting complete.")
+    except IOError as e:
+        print(f"Error writing to file: {e}")
+
+
+if __name__ == "__main__":
+    # Define your file path based on the planned structure
+    output_filepath = 'data/processed/qa_pairs.jsonl'
+    
+    # Run the formatting process
+    format_qa_pairs(output_filepath)
