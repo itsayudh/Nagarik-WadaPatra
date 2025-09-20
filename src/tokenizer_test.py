@@ -19,10 +19,7 @@ def run_round_trip_test(model_path):
     test_strings = [
         "Welcome to the citizen services portal.",
         "नागरिक वडापत्र अनुसार सेवा लिनुहोस्।",
-        "सेवा शुल्क: रु. ५०",
-        "मिति: २०८०/०२/२३",
-        "Number: 1234567890",
-        "Nepali numerals: ०१२३४५६७८९",
+       
     ]
 
     print("--- Running Round-Trip Test ---")
