@@ -17,12 +17,11 @@ def run_round_trip_test(model_path):
     
     # Define test strings with both English and Nepali text, and numerals.
     test_strings = [
-        "Welcome to the citizen services portal.",
+        "What is the document required registration",
         "नागरिक वडापत्र अनुसार सेवा लिनुहोस्।",
-        "सेवा शुल्क: रु. ५०",
-        "मिति: २०८०/०२/२३",
-        "Number: 1234567890",
-        "Nepali numerals: ०१२३४५६७८९",
+        "स्थानीय तह वा प्रहरी सर्जमिन लगायत बुझ्न सकिनेछ "
+
+        
     ]
 
     print("--- Running Round-Trip Test ---")
